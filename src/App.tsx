@@ -1,25 +1,48 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import "./App.css";
+
+import { AiFillHome } from "react-icons/ai";
+
+
+// Tab routing
+import useTabNavigator from "./hooks/useTabNavigator";
+import useTabRouter  from "./hooks/useTabRouter";
+
+// Layouts
+
+import MainLayout from "./layouts/main.layout";
+
+// Pages
+import Home from "./pages/home";
+import { BottomTabGroup } from "./components/BottomTabGroup";
+
 
 function App() {
+
+  const { CurrentPage, activeTab, setTabs, tabs } = useTabRouter();
+
+  setTabs([
+    {
+      label: "Home",
+      icon: <AiFillHome />,
+      page: Home,
+    },
+  ]);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <React.Fragment>
+      <MainLayout
+        tabGroup={
+          <BottomTabGroup
+            tabs={tabs}
+            activeTab={activeTab}
+            onChange={useTabNavigator().useLink}
+          />
+        }
+      >
+        <CurrentPage />
+      </MainLayout>
+    </React.Fragment>
   );
 }
 
