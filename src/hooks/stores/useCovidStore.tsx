@@ -1,4 +1,5 @@
 import create from "zustand";
+import { URLbuilder } from "../../util/URLbuilder";
 
 type CovidStoreType = {
   data?: CovidDataType;
@@ -14,11 +15,14 @@ type CovidDataType = {
   deaths: number;
   updated: number;
 };
+const covidBaseUrl = "https://disease.sh/v3/covid-19/nyt/"
+const builder = new URLbuilder(covidBaseUrl)
 
 const useCovidStore = create<CovidStoreType>((set) => ({
   data: undefined,
   fetch: async () => {
-    const response = await fetch("https://disease.sh/v3/covid-19/nyt/counties/Philadelphia");
+    const url = builder.attach("counties").attach("Philadelphia").url()
+    const response = await fetch(url);
     const data = await response.json();
     set((state) => ({
       ...state,

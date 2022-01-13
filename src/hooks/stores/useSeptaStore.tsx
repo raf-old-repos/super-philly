@@ -1,6 +1,7 @@
 import create from "zustand";
 
 import { REGIONAL_RAIL_STATIONS } from "../../data/constants";
+import { URLbuilder } from "../../util/URLbuilder"
 
 
 type RegionalRailTrain = {
@@ -21,21 +22,33 @@ type RegionalRailTrain = {
     platform_change: string | null
 }
 
-type BiDirectionalData = {
-    Northbound: RegionalRailTrain[],
-    Southbound: RegionalRailTrain[]
-}
-type RegionalRailArrivalsDeparturesType = {
-    [stationHeader: string]: BiDirectionalData[]
-}
 
-const septaBaseURL = "http://www3.septa.org/hackathon/Arrivals/"
+const septaBaseURL = "http://www3.septa.org/hackathon/"
+
+const builder = new URLbuilder(septaBaseURL)
+
+type TrainDirections  = "Northbound" | "Southbound"
 
 type useRegionalRailStoreType = {
-    train: RegionalRailTrain,
-    getTrainByName: 
+    train?: RegionalRailTrain[],
+    getTrainByName: (line: string, direction: TrainDirections) => Promise<void>
 }
 
-export const useRegionalRailStore = create((set) => ({
+export const useRegionalRailStore = create<useRegionalRailStoreType>((set) => ({
+    train: undefined,
+    getTrainByName: async (line: string, direction: TrainDirections) => {
+        if (REGIONAL_RAIL_STATIONS.includes(line)) {
+            const url = builder.attach("Arrivals").attach(line).url()
+            const res = await fetch(url)
+            const data = await res.json()
 
+            const train = data[Object.keys(data)[0]][0][direction]
+
+            set((state) => ({ ...state, train }))
+
+        } else {
+            console.log(`Regional rail station ${line} does not exist`)
+        }
+
+    }
 }));
