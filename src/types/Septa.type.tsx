@@ -24,3 +24,10 @@ export type Bus = {
     Direction: string | null,
     DateCalender: string | null
 }
+
+export type BusStop = {
+    lng: number | null,
+    lat: number | null,
+    stopid: number | null,
+    stopname: string | null
+}

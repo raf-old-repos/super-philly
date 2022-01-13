@@ -1,7 +1,7 @@
 import create from "zustand";
 import { REGIONAL_RAIL_STATIONS } from "../../data/constants";
 import { URLbuilder } from "../../util/URLbuilder"
-import type { Bus, RegionalRailTrain } from "../../types/Septa.type";
+import type { Bus, BusStop, RegionalRailTrain } from "../../types/Septa.type";
 
 const septaBaseURL = "http://www3.septa.org/hackathon/"
 
@@ -56,3 +56,18 @@ export const useBusScheduleStoreById = create<BusScheduleStoreByIdType>((set) =>
         }
     }
 }))
+
+type BusStationListStoreType = {
+    stops?: BusStop[],
+    fetchBusStopsByRoute: (route: number) => Promise<void>
+}
+
+export const useBusStationListStore = create<BusStationListStoreType>(
+    (set) => ({
+        stops: undefined,
+        fetchBusStopsByRoute: async (route: number) => {
+            const builder = new URLbuilder(septaBaseURL)
+            const url = builder.attach("Stops").param("req1", route.toString())
+        }
+    })
+)
