@@ -1,33 +1,12 @@
 import create from "zustand";
-
 import { REGIONAL_RAIL_STATIONS } from "../../data/constants";
 import { URLbuilder } from "../../util/URLbuilder"
-
-
-type RegionalRailTrain = {
-    direction: string | null,
-    path: string | null,
-    train_id: string | null,
-    origin: string | null,
-    destination: string | null,
-    line: string | null,
-    status: string | null,
-    service_type: "LOCAL" | "EXPRESS" | null,
-    next_station: string | null,
-    sched_time: string | Date | null,
-    depart_time: string | Date | null,
-    track: string | null,
-    track_change: string | null,
-    platform: string | null,
-    platform_change: string | null
-}
-
+import type { Bus, RegionalRailTrain } from "../../types/Septa.type";
 
 const septaBaseURL = "http://www3.septa.org/hackathon/"
 
-const builder = new URLbuilder(septaBaseURL)
 
-type TrainDirections  = "Northbound" | "Southbound"
+type TrainDirections = "Northbound" | "Southbound"
 
 type useRegionalRailStoreType = {
     train?: RegionalRailTrain[],
@@ -37,6 +16,8 @@ type useRegionalRailStoreType = {
 export const useRegionalRailStore = create<useRegionalRailStoreType>((set) => ({
     train: undefined,
     getTrainByName: async (line: string, direction: TrainDirections) => {
+        const builder = new URLbuilder(septaBaseURL)
+
         if (REGIONAL_RAIL_STATIONS.includes(line)) {
             const url = builder.attach("Arrivals").attach(line).url()
             const res = await fetch(url)
@@ -52,3 +33,26 @@ export const useRegionalRailStore = create<useRegionalRailStoreType>((set) => ({
 
     }
 }));
+
+type BusScheduleStoreByIdType = {
+    bus?: Bus,
+    fetchBusById: (id: string) => Promise<void>
+}
+
+export const useBusScheduleStoreById = create<BusScheduleStoreByIdType>((set) => ({
+    bus: undefined,
+    fetchBusById: async (id: string) => {
+        const builder = new URLbuilder(septaBaseURL)
+        const url: string = builder.attach("BusSchedules").param("req1", id).url()
+        const res = await fetch(url)
+        if (!res.ok) {
+            console.log("Bus ID does not exist")
+        } else {
+            const data = await res.json()
+
+            const bus = data[Object.keys(data)[0]][0]
+
+            set(state => ({ ...state, bus }))
+        }
+    }
+}))
